@@ -16,7 +16,6 @@ Every `SKILL.md` has a `description` Claude Code matches against the current tas
 | [`to-spec`](skills/to-spec/SKILL.md) | The grilling conversation has settled and you want it turned into a spec, published as a GitHub issue. |
 | [`to-tickets`](skills/to-tickets/SKILL.md) | You have a spec (or a big enough conversation) and want it split into small, independently buildable tickets. |
 | [`implement`](skills/implement/SKILL.md) | You have a spec or ticket and want it built: TDD where it fits, `code-review` before commit. |
-| [`setup-matt-pocock-skills`](skills/setup-matt-pocock-skills/SKILL.md) | Once, per repo, before first use of the above — picks the issue tracker (GitHub/GitLab/local files) and domain-doc layout the rest assume. |
 
 **Leave alone — Claude reaches for these itself when the task matches:**
 
@@ -78,7 +77,7 @@ npx skills@latest add AmirAbaris/amir-skills --all
 
 or copy the folder directly into `.claude/skills/` (or wherever your agent looks for skills).
 
-`setup-matt-pocock-skills` expects to run once per repo before `grill-with-docs` / `to-spec` / `to-tickets` / `implement` are used — it writes `docs/agents/issue-tracker.md` and `docs/agents/domain.md` so those skills know where issues and domain docs live in *that* repo.
+Before first using `grill-with-docs` / `to-spec` / `to-tickets` / `implement` in a new repo, tell Claude where issues live there (GitHub, GitLab, or plain files) and where domain docs go (usually a single `CONTEXT.md` + `docs/adr/` at the root). Have it write that down as `docs/agents/issue-tracker.md` and `docs/agents/domain.md` — a one-time, five-minute conversation, not a skill you need installed.
 
 ## Attribution & licensing
 
@@ -86,7 +85,7 @@ This repo is a personal curation, not original work for most of it. Every skill 
 
 | Skill(s) | Source | License |
 |---|---|---|
-| `code-review`, `codebase-design`, `domain-modeling`, `grill-with-docs`, `implement`, `to-spec`, `to-tickets`, `setup-matt-pocock-skills` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT |
+| `code-review`, `codebase-design`, `domain-modeling`, `grill-with-docs`, `implement`, `to-spec`, `to-tickets` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT |
 | `emil-design-eng` | [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT |
 | `shadcn` | [shadcn-ui/ui](https://github.com/shadcn-ui/ui) | MIT |
 | `unslop` | [michaelshimeles/skills](https://github.com/michaelshimeles/skills), itself vendored from [cursor/plugins](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop) | MIT (see [skills/unslop/LICENSE](skills/unslop/LICENSE)) |
