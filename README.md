@@ -6,22 +6,21 @@ The problem this setup solves: agent-driven "do everything, hand me one PR" work
 
 ## Two kinds of skills
 
-Every `SKILL.md` has a `description` Claude Code matches against the current task. Most skills can fire on their own the moment the task looks right — you never type their name. A couple are marked `disable-model-invocation: true`: those only run when you explicitly type `/skill-name`, because they make a decision (start implementing) that shouldn't happen without you asking for it.
+Every `SKILL.md` has a `description` Claude Code matches against the current task. Almost everything here can fire on its own the moment the task looks right — you never type its name. Exactly one skill is marked `disable-model-invocation: true`, because it makes a decision (start a real interview) that shouldn't happen without you asking for it.
 
-**Call these yourself — they don't fire on their own:**
+**Call this one yourself — it doesn't fire on its own:**
 
 | Skill | Call it when |
 |---|---|
-| [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | You have a rough idea and want it interrogated before anything gets built. Sharpens the plan and writes `CONTEXT.md`/ADRs as decisions land. Start any feature-sized request here. |
-| [`implement`](skills/implement/SKILL.md) | The grilling conversation has settled (or the change is small enough to skip grilling) and you want it built: TDD where it fits, `code-review` before commit. |
+| [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | You have a rough idea and want it interrogated before anything gets built. Sharpens the plan and writes `CONTEXT.md`/ADRs as decisions land. Start any feature-sized request here — it's the only command in this whole setup you need to remember. |
 
 **Leave alone — Claude reaches for these itself when the task matches:**
 
 | Skill | Fires when |
 |---|---|
 | [`new-feature`](skills/new-feature/SKILL.md) | The start of any new task — puts it on its own branch off `origin/main` instead of touching `main`. A plain branch, not a git worktree — that only happens if you explicitly ask for one. |
-| [`code-review`](skills/code-review/SKILL.md) | You ask to review a branch, a PR, or work-in-progress — checks Standards (repo conventions) and Spec (does it match the issue) as two parallel, separately-reported passes. |
-| [`tdd`](skills/tdd/SKILL.md) | Building or fixing something test-first — what makes a test worth keeping, where it should live, red-green-refactor discipline. `implement` calls this internally. |
+| [`code-review`](skills/code-review/SKILL.md) | You ask to review a branch, a PR, or work-in-progress, or before a commit is made — checks Standards (repo conventions) and Spec (does it match the issue) as two parallel, separately-reported passes. |
+| [`tdd`](skills/tdd/SKILL.md) | Building or fixing something test-first — what makes a test worth keeping, where it should live, red-green-refactor discipline. |
 | [`codebase-design`](skills/codebase-design/SKILL.md) | A module's interface is being designed or reworked — vocabulary for "deep modules" (small interface, real behavior behind it). |
 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | Project terminology comes up, or `CONTEXT.md`/an ADR needs writing or challenging. |
 | [`before-and-after`](skills/before-and-after/SKILL.md) | A UI change needs a quick before/after screenshot pair for the PR. |
@@ -35,31 +34,32 @@ Everything in the second table except `shadcn` can also be called explicitly (`/
 ## The workflow
 
 ```
-/grill-with-docs ──▶ /implement
-  idea → decisions       TDD + code-review before commit
-  + CONTEXT.md/ADR       + before/after evidence on the PR
+/grill-with-docs  ──▶  built in the same session
+  idea → decisions        tdd + typecheck + tests
+  + CONTEXT.md/ADR         code-review before every commit
+                           + before/after evidence on the PR
 ```
 
-`new-feature` runs underneath both steps automatically — it's not something you type, it's what puts the work on its own branch the instant a new task starts, before either command above runs.
+There's no `/implement` or similar step to invoke — once the conversation settles, you just say "go build it" and it happens in that same session, driving `tdd`, checks, and `code-review` as a standing habit, not because a skill enforces it. `new-feature` runs underneath the whole thing automatically — not something you type, it's what puts the work on its own branch the instant a new task starts, before `/grill-with-docs` even runs.
 
 ### Worked example: "add a newsletter signup form to the landing page"
 
 1. **You type:** `/grill-with-docs let's add a newsletter signup form to the landing page`. `new-feature` fires invisibly in the same turn, putting you on a fresh branch off `origin/main` — you never touch `main` directly.
 2. **The interview.** A real conversation, not a form. It asks what "signup" means here (just an email? confirmation flow? where does it get stored?), what happens on duplicate emails, what the empty/error/success states look like. As terms get pinned down ("subscriber" vs "lead"), it writes them into `CONTEXT.md` inline. If a decision is hard to reverse (e.g. "store emails in the existing `contacts` table, not a new one"), it offers an ADR.
-3. **You type:** `/implement`, once the conversation feels settled. It builds the whole thing in this session: `tdd` where it fits, then runs `code-review` (Standards + Spec, two separate reports) before committing. If the feature is genuinely too big for one sitting, say so and agree a smaller first slice to build instead of pushing through — there's no ticket system to lean on here, so that judgment call is yours and mine to make in the conversation, not something a tool decides.
+3. **Building it.** Once the conversation feels settled, it gets built right there: `tdd` where it fits, typecheck and the relevant tests along the way, then `code-review` (Standards + Spec, two separate reports) before every commit — not just at the end. If the feature is genuinely too big for one sitting, say so and agree a smaller first slice instead of pushing through — there's no ticket system to lean on here, so that call is made in conversation, not by a tool.
 4. **Shipping.** `unslop` cleans up the commit message and PR body before they're written. `before-and-after` grabs a screenshot pair of the form for the PR description; for the submit flow specifically (state that's easy to get subtly wrong — duplicate handling, error states) `evidence-driven-testing` records an actual click-through with pass/fail assertions instead of a prose "tested it" claim.
 
 ### Smaller changes skip the interview
 
-A one-line copy fix or a small bug doesn't need `grill-with-docs` — ask for it directly and go straight to `/implement`. `new-feature` still isolates it on its own branch either way.
+A one-line copy fix or a small bug doesn't need `grill-with-docs` — ask for it directly and it gets built the same way (checks, tests, review, commit). `new-feature` still isolates it on its own branch either way.
 
 ### Fixing something broken
 
-Not covered by the skills in this repo — `diagnosing-bugs` from [mattpocock/skills](https://github.com/mattpocock/skills) is the on-ramp for that (reproduce, get a tight red-going-green feedback loop, then fix with a regression test) and hands off to `implement` the same way.
+Not covered by the skills in this repo — `diagnosing-bugs` from [mattpocock/skills](https://github.com/mattpocock/skills) is the on-ramp for that (reproduce, get a tight red-going-green feedback loop, then fix with a regression test).
 
-### If you do want tickets
+### If you do want tickets, or a dedicated implement step
 
-I deliberately don't run a ticket/tracker pipeline — see the note at the top. If that's not true for you, mattpocock/skills has `to-spec` (spec from conversation) and `to-tickets` (spec → small tracer-bullet tickets, published to GitHub, GitLab, or local files) as a drop-in extension of the same `grill-with-docs`/`implement` flow. Not included here on purpose.
+I deliberately don't run a ticket/tracker pipeline, and I dropped mattpocock's `implement` skill on purpose too — it was a checklist (tdd, typecheck, code-review, commit) doing nothing that isn't already a standing habit here. If either fits how you work, mattpocock/skills has `implement`, `to-spec` (spec from conversation), and `to-tickets` (spec → small tracer-bullet tickets, published to GitHub, GitLab, or local files) as a drop-in extension of the same `grill-with-docs` flow. Not included here on purpose.
 
 ## Installation
 
@@ -75,7 +75,7 @@ npx skills@latest add AmirAbaris/amir-skills --all
 
 or copy the folder directly into `.claude/skills/` (or wherever your agent looks for skills).
 
-Before first using `grill-with-docs` / `implement` in a new repo, tell Claude where domain docs go there (usually a single `CONTEXT.md` + `docs/adr/` at the root) and have it write that down as `docs/agents/domain.md` — a one-time, two-minute conversation, not a skill you need installed.
+Before first using `grill-with-docs` in a new repo, tell Claude where domain docs go there (usually a single `CONTEXT.md` + `docs/adr/` at the root) and have it write that down as `docs/agents/domain.md` — a one-time, two-minute conversation, not a skill you need installed.
 
 ## Attribution & licensing
 
@@ -83,7 +83,7 @@ This repo is a personal curation, not original work for most of it. Every skill 
 
 | Skill(s) | Source | License |
 |---|---|---|
-| `code-review`, `codebase-design`, `domain-modeling`, `grill-with-docs`, `implement`, `tdd` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT |
+| `code-review`, `codebase-design`, `domain-modeling`, `grill-with-docs`, `tdd` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT |
 | `emil-design-eng` | [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT |
 | `shadcn` | [shadcn-ui/ui](https://github.com/shadcn-ui/ui) | MIT |
 | `unslop` | [michaelshimeles/skills](https://github.com/michaelshimeles/skills), itself vendored from [cursor/plugins](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop) | MIT (see [skills/unslop/LICENSE](skills/unslop/LICENSE)) |
