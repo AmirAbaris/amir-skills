@@ -1,13 +1,13 @@
 ---
 name: new-feature
-description: Start a new task in an isolated Git worktree branched from origin/main so multiple agents can work on the same repo in parallel without conflicts. Use at the beginning of every new feature, fix, or task — before writing any code.
+description: Start a new task on its own branch off origin/main, never on main, so parallel agents don't collide. Use at the beginning of every new feature, fix, or task, before writing any code. A worktree only when the harness or the user asks for one.
 ---
 
 # New Feature
 
-Every task gets its own worktree and branch, created from the latest
-`origin/main`. Never build on `main`, and never reuse another agent's
-worktree or branch.
+Every task gets its own branch, created from the latest `origin/main`.
+Never build on `main`, and never reuse another agent's branch. A separate
+worktree on top of that is a harness or user choice, not the default.
 
 ## Harness deltas — read first
 
