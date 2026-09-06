@@ -4,9 +4,10 @@ My working set of [Claude Code agent skills](https://code.claude.com/docs/en/ski
 
 Each skill's `description` decides when it fires. There is no workflow to learn and nothing to configure. Install them and work normally.
 
+To design something before it gets built, use Claude Code's plan mode. It holds off edits until you approve a plan, which is enforcement a skill can't offer. `domain-modeling` writes the glossary and ADRs alongside it.
+
 | Skill | |
 |---|---|
-| [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | Interrogates a rough idea before any code exists, writing `CONTEXT.md` and ADRs as decisions land. The one you call yourself, since it won't fire on its own. |
 | [`new-feature`](skills/new-feature/SKILL.md) | Puts a new task on its own branch off `origin/main`. |
 | [`code-review`](skills/code-review/SKILL.md) | Reviews a diff twice over, Standards and Spec, as separate parallel passes. |
 | [`codebase-design`](skills/codebase-design/SKILL.md) | Vocabulary for deep modules, meaning a small interface with real behavior behind it. |
@@ -25,7 +26,7 @@ Each skill is a plain folder with a `SKILL.md`, with no build step.
 
 ```bash
 # one skill, into the current project
-npx skills@latest add AmirAbaris/amir-skills --skill grill-with-docs
+npx skills@latest add AmirAbaris/amir-skills --skill code-review
 
 # everything in this repo
 npx skills@latest add AmirAbaris/amir-skills --all
@@ -33,7 +34,7 @@ npx skills@latest add AmirAbaris/amir-skills --all
 
 Or copy the folder into `.claude/skills/`.
 
-`grill-with-docs` writes domain docs, so a new repo needs to say where they go. Usually that is a `CONTEXT.md` and `docs/adr/` at the root, written down once as `docs/agents/domain.md`.
+`domain-modeling` writes domain docs, so a new repo needs to say where they go. Usually that is a `CONTEXT.md` and `docs/adr/` at the root, written down once as `docs/agents/domain.md`.
 
 ## Attribution & licensing
 
@@ -41,7 +42,7 @@ Mostly a curation, not original work. Every skill folder is reproduced from one 
 
 | Skill(s) | Source | License |
 |---|---|---|
-| `code-review`, `codebase-design`, `domain-modeling`, `grill-with-docs` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT |
+| `code-review`, `codebase-design`, `domain-modeling` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT |
 | `emil-design-eng` | [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT |
 | `shadcn` | [shadcn-ui/ui](https://github.com/shadcn-ui/ui) | MIT |
 | `unslop` | [michaelshimeles/skills](https://github.com/michaelshimeles/skills), itself vendored from [cursor/plugins](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop) | MIT (see [skills/unslop/LICENSE](skills/unslop/LICENSE)) |
